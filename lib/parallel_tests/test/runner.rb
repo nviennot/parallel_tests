@@ -131,18 +131,25 @@ module ParallelTests
           result
         end
 
+        def extract_runtime_info
+          @times ||= begin
+            lines = File.read(runtime_log).split("\n") rescue []
+            Hash.new(1).tap do |times|
+              lines.each do |line|
+                next unless line =~ /^(.+):([0-9\.]+)$/
+                test, time = $1, $2
+                times[File.expand_path(test)] = time.to_f
+              end
+            end
+          end
+        end
+
         def with_runtime_info(tests)
-          lines = File.read(runtime_log).split("\n") rescue []
+          times = extract_runtime_info
 
           # use recorded test runtime if we got enough data
-          if lines.size * 1.5 > tests.size
+          if times.size * 1.5 > tests.size
             puts "Using recorded test runtime"
-            times = Hash.new(1)
-            lines.each do |line|
-              test, time = line.split(":")
-              next unless test and time
-              times[File.expand_path(test)] = time.to_f
-            end
             tests.sort.map{|test| [test, times[File.expand_path(test)]] }
           else # use file sizes
             with_filesize_info(tests)

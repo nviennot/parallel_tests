@@ -6,6 +6,12 @@ module ParallelTests
       NAME = 'RSpec'
 
       class << self
+        def tests_in_groups(tests, num_groups, options={})
+          tests = extract_runtime_info.keys if tests.empty?
+          tests = ['spec'] if tests.empty?
+          super
+        end
+
         def run_tests(test_files, process_number, num_processes, options)
           exe = executable # expensive, so we cache
           version = (exe =~ /\brspec\b/ ? 2 : 1)
