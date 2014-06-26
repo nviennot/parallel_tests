@@ -1,16 +1,15 @@
 require 'parallel_tests'
 require 'parallel_tests/rspec/logger_base'
 
-class RSpec::Core::World
-  def announce_filters
-  end
-end
-
 class ParallelTests::RSpec::RuntimeLogger < ParallelTests::RSpec::LoggerBase
   def initialize(*args)
     super
     @example_times = Hash.new(0)
-    @group_nesting = 0
+    @group_nesting = 0 unless RSPEC_1
+  end
+
+  if RSPEC_3
+    RSpec::Core::Formatters.register self, :example_group_started, :example_group_finished, :start_dump
   end
 
   def example_started(*args)
@@ -21,6 +20,9 @@ class ParallelTests::RSpec::RuntimeLogger < ParallelTests::RSpec::LoggerBase
   def example_passed(example)
     @example_times[example.location] += ParallelTests.now - @time
     super
+  end
+
+  def example_group_finished(notification)
   end
 
   def dump_summary(*args);end

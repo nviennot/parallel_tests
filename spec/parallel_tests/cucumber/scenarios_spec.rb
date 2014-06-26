@@ -52,6 +52,16 @@ module ParallelTests
             scenarios = Scenarios.all([feature_file.path], :ignore_tag_pattern => '@ignore, @wip')
             scenarios.should eq %W(#{feature_file.path}:7)
           end
+
+          it 'return scenarios with tag' do
+            scenarios = Scenarios.all([feature_file.path], :test_options => '-t @wip')
+            scenarios.should eq %W(#{feature_file.path}:4)
+          end
+
+          it 'return scenarios with negative tag' do
+            scenarios = Scenarios.all([feature_file.path], :test_options => '-t @ignore,~@wip') # @ignore or not @wip
+            scenarios.should eq %W(#{feature_file.path}:7 #{feature_file.path}:11)
+          end
         end
       end
     end

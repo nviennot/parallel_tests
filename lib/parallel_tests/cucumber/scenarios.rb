@@ -9,12 +9,10 @@ module ParallelTests
     class Scenarios
       class << self
         def all(files, options={})
-          tag_expressions = if options[:ignore_tag_pattern]
-            options[:ignore_tag_pattern].split(/\s*,\s*/).map {|tag| "~#{tag}" }
-          else
-            []
-          end
-          split_into_scenarios files, tag_expressions
+          tags = []
+          tags.concat options[:ignore_tag_pattern].to_s.split(/\s*,\s*/).map {|tag| "~#{tag}" }
+          tags.concat options[:test_options].to_s.scan(/(?:-t|--tags) (~?@[\w,~@]+)/).flatten
+          split_into_scenarios files, tags.uniq
         end
 
         private
